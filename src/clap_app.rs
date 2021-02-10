@@ -17,16 +17,15 @@ impl From<ArgMatches> for ClapArgs {
 }
 
 pub fn new_matches() -> ClapArgs {
-    println!("hello clap app");
     let matches = App::new("csvcat")
-        .version("1.0")
-        .about("Does awesome things")
+        .version("0.1")
+        .about("takes in a list of csv's and concats them together")
         .arg(Arg::new("files")
             .long("files")
             .short('f')
             .takes_value(true)
             .multiple(true)
-            .about("hello world!"))
+            .about("can use `ls` piped to `xargs` as files arg"))
         .arg(Arg::new("outfile")
             .long("outfile")
             .short('o')

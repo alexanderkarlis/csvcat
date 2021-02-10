@@ -44,6 +44,7 @@ impl<'a> CatFiles<'a>{
 
         let mut out_arg: OutFile = OutFile::FileOut(PathBuf::from(&args.outfile));
         if args.outfile == "" || args.outfile.to_uppercase() == "STDOUT" {
+            println!("found stdout...");
             out_arg = OutFile::Stdout(&args.outfile);
         };
 
@@ -56,12 +57,26 @@ impl<'a> CatFiles<'a>{
         }) 
     }
 
-    pub fn get_cols_from_first_file(
+    /// Gets the columns from the first file to check against other file's cols
+    ///
+    /// # Arguments 
+    /// 
+    /// * Vec<u8> is the vector of u8's the columns with be added to.
+    ///
+    /// * usize is the location of the file that is passed into the program (starts
+    /// at 0 index).
+    ///
+    /// # Returns
+    ///
+    /// * Result<Vec<u8>, Utf8Error> is the vector that is passed into this function and 
+    /// therefore filled with the columns.
+    pub fn get_cols_from_file_index(
             &mut self, 
-            col_vec: &'a mut Vec<u8>
+            col_vec: &'a mut Vec<u8>,
+            index: usize
         ) -> Result<&'a Vec<u8>, std::str::Utf8Error> {
         
-        let fc: Vec<u8> = (&self.file_contents.get(&0).unwrap()).to_vec();
+        let fc: Vec<u8> = (&self.file_contents.get(&index).unwrap()).to_vec();
 
         for (i, b) in fc.iter().enumerate() {
             if *b as char == '\n' {
@@ -73,12 +88,6 @@ impl<'a> CatFiles<'a>{
         Ok(col_vec)
     }
     
-    /// Internal tool for quick converting Vec<u8> to string. Useful for
-    /// reading from files.
-    fn u8_array_to_string(&self, array: &'a Vec<u8>) -> &'a str {
-        std::str::from_utf8(&array).unwrap()
-    }
-
     /// This function is called after `filter_bad_csvs` in order to remove
     /// all the csv files who's headers do not match our desired col headers 
     /// from the first file. Does not sort the results.
@@ -138,24 +147,19 @@ impl<'a> CatFiles<'a>{
     ///
     /// # Arguments
     /// 
-    /// * `string` - String argument to be written
+    /// * Self
     ///
     /// # Returns 
     ///
     /// * io::Result<()>, based on if the write was successful
+    /// * Result<Box<dyn Write>, io::Error> where the body can be written to either stdout or file
     ///
     pub fn get_output(&self) -> Result<Box<dyn Write>, io::Error> {
-        todo!()
-        // if self.output == String::from("STDOUT")
-        //     Ok(Box::new(io::stdout()))
-        // }
-        // fs::File::create(self.output as std::path::Path).map(|f| Box::new(f) as Box<dyn Write>)
-        // match self.output {
-        //     Some(ref path) => 
-        //     None => 
-        // }
+        match &self.output {
+            OutFile::Stdout(_) => Ok(Box::new(io::stdout()) as Box<dyn Write>),
+            OutFile::FileOut(filename) => fs::File::create(filename).map(|f| Box::new(f) as Box<dyn Write>),
+        }
     }
-    // 
 }
 
 #[cfg(test)]
