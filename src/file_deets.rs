@@ -38,17 +38,6 @@ impl<'a> Iterator for Inspector<'a> {
     }
 }
 
-// impl<Idx> std::ops::Index<Idx> for AllCatFiles
-// where
-//     Idx: std::slice::SliceIndex<[usize]>
-// {
-//     type Output = Idx::Output;
-
-//     fn index(&self, index: Idx) -> &Self::Output {
-//         &self.files.get(&index).unwrap()
-//     }
-// }
-
 impl CatFileDetails {
     pub fn new(i: usize, dir: String) -> Self {
         Self {
